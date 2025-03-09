@@ -1,0 +1,11 @@
+services:
+  az-fn-app: 
+    container_name: az-fn-app
+    build: .
+    platform: linux/amd64
+    # dev
+    volumes:
+      - .:/home/site/wwwroot/docker_azure_function
+    tty: true
+    ports:
+      - "8083:80"

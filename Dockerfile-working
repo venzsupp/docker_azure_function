@@ -1,0 +1,31 @@
+# Use official Microsoft .NET 8 base image for Azure Functions
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0 AS base
+
+# Set the working directory
+WORKDIR /home/site/wwwroot
+
+# Copy project files and restore dependencies
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy .csproj and restore dependencies
+COPY ["venz_azure_fn.csproj", "."]
+RUN dotnet restore "venz_azure_fn.csproj"
+
+# Copy everything else and build the project
+COPY . .
+RUN dotnet publish "venz_azure_fn.csproj" --configuration Release --output /app/publish
+
+# Final runtime stage
+FROM base AS final
+WORKDIR /home/site/wwwroot
+COPY --from=build /app/publish .
+
+# Expose the default port for Azure Functions runtime
+EXPOSE 80
+EXPOSE 7071
+
+ENV AzureWebJobsScriptRoot=/home/site/wwwroot
+# Start Azure Functions host
+# Start Azure Function using dotnet
+# CMD ["dotnet", "MyFunctionApp.dll"]
