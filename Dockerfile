@@ -7,12 +7,12 @@ COPY ["docker_azure_function.csproj", "."]
 RUN dotnet restore "docker_azure_function.csproj"
 
 # Copy the entire project and build it
-COPY . .
+COPY . /home/site/wwwroot/app
 RUN dotnet publish "docker_azure_function.csproj" --configuration Release --output /app/publish
 
 # Stage 2: Use the Azure Functions runtime as the base
 FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0 AS base
-WORKDIR /home/site/wwwroot
+WORKDIR /home/site/wwwroot/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,9 +28,9 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 
 RUN apt-get update && \
     apt-get install -y dotnet-sdk-8.0
-COPY . /home/site/wwwroot/app
+
 # Set environment variables for Azure Functions
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot/app
+ENV AzureWebJobsScriptRoot=/home/site/wwwroot
 ENV FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
 
 # Copy the published app from the build stage
