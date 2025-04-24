@@ -8,4 +8,4 @@
 
 # create and run container
 
-1. docker run --name container_name -d -p 8033:80 image_name
+1. docker run --name container_name --volume local_project_path:container_path -d -p 8033:80 image_name
